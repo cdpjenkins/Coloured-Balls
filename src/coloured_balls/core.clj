@@ -36,10 +36,33 @@
      :green (rand-int 256)
      :radius radius}))
 
+(defn distance [x1 y1 x2 y2]
+  (let [dx (- x2 x1)
+        dy (- y1 y2)]
+    (sqrt (+ (* dx dx) (* dy dy)))))
+
+(defn balls-overlap? [ball1 ball2]
+  (< (distance (:x ball1)
+               (:y ball1)
+               (:x ball2)
+               (:y ball2))
+     (+ (:radius ball1) (:radius ball2))))
+
+
+(defn add-ball [balls]
+  (let [ball (make-ball)]
+    (if (some #(balls-overlap? ball %) balls)
+      (add-ball balls)
+      (cons (make-ball) balls))))
+
+
 (def *balls*
   (atom 
-   (for [_ (range 20)]
-     (make-ball))))
+   (reduce  (fn [balls _] (add-ball balls))
+            ()
+            (range 10))))
+;   (for [_ (range 20)]
+;     (make-ball))))
 
 (defn move-balls [balls]
   ;; Massive note: if we implement gravity then got to make sure
