@@ -6,9 +6,29 @@
 (def WIDTH 400)
 (def HEIGHT 400)
 
+(def GRAVITY (/ 1.0 1))
+
 (defn my-rand [min max]
   (let [range (- max min)]
     (+ (rand range) min)))
+
+(defn calculate-mass [ball]
+  (let [r (:radius ball)]
+    (* r r)))
+
+(defn calculate-kinetic-engery [ball]
+  (let [m (calculate-mass ball)
+        vx (:vx ball)
+        vy (:vy ball)
+        v2 (+  (* vx vx) (* vy vy) )]
+    (* 1/2 m v2)))
+
+(defn calculate-potential-energy [ball]
+  (let [h (- HEIGHT ( :y ball))]
+    (* (calculate-mass ball) GRAVITY h)))
+
+(defn calculate-total-energy [ball]
+  (+ (calculate-potential-energy ball) (calculate-kinetic-engery ball)))
 
 ;; here's a function which will be called by Processing's (PApplet)
 ;; draw method every frame. Place your code here. If you eval it
@@ -60,7 +80,7 @@
   (atom 
    (reduce  (fn [balls _] (add-ball balls))
             ()
-            (range 10))))
+            (range 1))))
 ;   (for [_ (range 20)]
 ;     (make-ball))))
 
@@ -70,21 +90,34 @@
   ;; bouncing off other balls (conservation of both momentum and
   ;; energy) which I really can't remember how to do.
   (for [ball balls]
-    (let [nx (+ (:x ball) (:vx ball))
-          ny (+ (:y ball) (:vy ball))
+    (let [vx (:vx ball)
+          vy (:vy ball)
+
+          ;; gravity
+          vy (+ vy GRAVITY)
+
+          x (+ (:x ball) vx)
+          y (+ (:y ball) vy)
+
           radius (:radius ball)
-          nvx (if (or (< (- nx radius) 0) (> (+ nx radius) WIDTH))
-                (- (:vx ball))
-                (:vx ball))
-          nvy (if (or (< (- ny radius) 0) (> (+ ny radius) HEIGHT))
-                (- (:vy ball))
-                (:vy ball))]
-                
+
+          ;; apply bounce-off-walls
+          vx (if (or (< (- x radius) 0) (> (+ x radius) WIDTH))
+               (- vx)
+               vx)
+
+          vy (if (or (< (- y radius) 0) (> (+ y radius) HEIGHT))
+               (- vy)
+               vy)
+
+
+          ]
+      (println ( calculate-total-energy ball))
           
-      (assoc ball :x nx
-                  :y ny
-                  :vx nvx
-                  :vy nvy))))
+      (assoc ball :x x
+                  :y y
+                  :vx vx
+                  :vy vy))))
 
 ;;; 
 (defn cls []
