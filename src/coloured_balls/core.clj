@@ -93,11 +93,11 @@
     (let [vx (:vx ball)
           vy (:vy ball)
 
+          x (+ (:x ball) vx)
+          y (+ (:y ball) vy (/ GRAVITY 2))
+
           ;; gravity
           vy (+ vy GRAVITY)
-
-          x (+ (:x ball) vx)
-          y (+ (:y ball) vy)
 
           radius (:radius ball)
 
