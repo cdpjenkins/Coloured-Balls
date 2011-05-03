@@ -1,6 +1,7 @@
 (ns coloured-balls.core
   (:use [rosado.processing]
-        [rosado.processing.applet])
+        [rosado.processing.applet]
+        [ coloured-balls.motion])
   (:gen-class))
 
 ;; here's a function which will be called by Processing's (PApplet)
@@ -13,13 +14,26 @@
 	(ellipse (:x ball) (:y ball) (:radius ball) (:radius ball)))
 
 (defn make-ball []
-	{:x (rand-int 400) :y (rand-int 400) :red (rand-int 256) :blue (rand-int 256) :green (rand-int 256) :radius (+ 1 (rand-int 70))})
+  {:x 500 :y 500 :red (rand-int 256) :blue (rand-int 256) :green (rand-int 256) :radius (+ 1 (rand-int 70)) :heading (rand 360) :velocity (inc (rand 10))})
+
+(def list-of-items (atom (take 200 (repeatedly make-ball))))
+
+(defn reset-items [] (reset! list-of-items (take 200 (repeatedly make-ball))))
+
+
+(defn draw-balls [balls]
+  (do
+    (background 0 0 0)
+    (doseq [ball balls]
+      (draw-ball ball))))
+
+(defn move-balls! [coll]
+  (swap! coll (fn [l] (doall (map #(move %) l)))))
 
 (defn draw
-  "Example usage of with-translation and with-rotation."
-  []
-	(draw-ball (make-ball))
-  )
+  "Example usage of with-translation and with-rotation."  []
+  (draw-balls @list-of-items)
+  (move-balls! list-of-items))
 
 (defn setup []
   "Runs once."
@@ -31,8 +45,8 @@
 ;; Now we just need to define an applet:
 
 (defapplet balls :title "Coloured balls"
-  :setup setup :draw draw :size [400 400])
+  :setup setup :draw draw :size [1000 1000])
 
 (defn -main [& args]
- (run balls))
+ (run balls true))
 
