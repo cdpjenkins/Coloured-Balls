@@ -14,12 +14,19 @@
 	(ellipse (:x ball) (:y ball) (:radius ball) (:radius ball)))
 
 (defn make-ball []
-  {:x 500 :y 500 :red (rand-int 256) :blue (rand-int 256) :green (rand-int 256) :radius (+ 1 (rand-int 70)) :heading (rand 360) :velocity (inc (rand 10))})
+  {:x (rand-int 1000)
+   :y (rand-int 1000)
+   :red (rand-int 256)
+   :blue (rand-int 256)
+   :green (rand-int 256)
+   :radius (+ 1 (rand-int 70))
+   :heading (rand 360)
+   :velocity (inc (rand 10))
+   :shrink (rand-int 2)})
 
 (def list-of-items (atom (take 200 (repeatedly make-ball))))
 
 (defn reset-items [] (reset! list-of-items (take 200 (repeatedly make-ball))))
-
 
 (defn draw-balls [balls]
   (do
@@ -28,13 +35,13 @@
       (draw-ball ball))))
 
 (defn move-balls! [coll]
-  (swap! coll (fn [l] (doall (map #(move %) l)))))
+  (swap! coll (fn [l] (doall (map #(move % (remove (fn [item] (= item)) l)) l)))))
+
 
 (defn draw
   "Example usage of with-translation and with-rotation."  []
   (draw-balls @list-of-items)
   (move-balls! list-of-items))
-
 (defn setup []
   "Runs once."
   (smooth)
