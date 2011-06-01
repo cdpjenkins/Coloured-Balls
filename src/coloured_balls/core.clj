@@ -35,7 +35,7 @@
       (draw-ball ball))))
 
 (defn move-balls! [coll]
-  (swap! coll (fn [l] (doall (map #(move % (remove (fn [item] (= item)) l)) l)))))
+  (swap! coll (fn [l] (doall (map #(move % (remove (fn [item] (= item %)) l)) l)))))
 
 
 (defn draw
